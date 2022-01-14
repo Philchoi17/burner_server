@@ -1,43 +1,35 @@
 module.exports = {
-    "root": true,
-    "env": {
-        "node": true,
-        "commonjs": true,
-        "es6": true,
-        "jquery": false,
-        "jest": true,
-        "jasmine": true
-    },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "sourceType": "module",
-        "ecmaVersion": "2018"
-    },
-    "rules": {
-        "indent": [
-            "warn",
-            "tab",
-            { "SwitchCase": 1 }
-        ],
-        "quotes": [
-            "warn",
-            "double"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "no-var": [
-            "error"
-        ],
-        "no-console": [
-            "off"
-        ],
-        "no-unused-vars": [
-            "warn"
-        ],
-        "no-mixed-spaces-and-tabs": [
-            "warn"
-        ]
-    }
-};
+	env: {
+		commonjs: true,
+		node: true,
+		browser: true,
+		es6: true,
+		jest: true,
+	},
+	extends: ['eslint:recommended', 'plugin:react/recommended'],
+	globals: {},
+	parser: 'babel-eslint',
+	parserOptions: {
+		ecmaFeatures: {
+			jsx: true,
+		},
+		ecmaVersion: 2018,
+		sourceType: 'module',
+	},
+	plugins: ['react', 'import', 'react-hooks'],
+	ignorePatterns: ['node_modules/'],
+	rules: {},
+	settings: {
+		react: {
+			version: 'latest', // "detect" automatically picks the version you have installed.
+		},
+	},
+}
+module.exports = {
+	bracketSpacing: true,
+	jsxBracketSameLine: true,
+	semi: false,
+	singleQuote: true,
+	tabWidth: 2,
+	trailingComma: 'all',
+}
