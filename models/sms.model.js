@@ -1,11 +1,13 @@
-const smsModel = [
-	"_id", // primary
-	"text", // string
-	"type", // string
-	"to", // string [ phone no. ]
-	"code", // verification code
-	"createdAt", // dateTime
-	"updatedAt", // dateTime
-];
+const mongoose = require('mongoose')
 
-module.exports = smsModel;
+const smsSchema = new mongoose.Schema({
+	_id: String,
+	text: String,
+	type: String,
+	to: String,
+	code: Number,
+	createdAt: Date,
+	updatedAt: Date,
+})
+
+module.exports = smsSchema

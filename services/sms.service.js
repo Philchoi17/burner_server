@@ -2,7 +2,7 @@
 
 const DbMixin = require('../mixins/db.mixin')
 const { MoleculerClientError } = require('moleculer').Errors
-const smsModel = require('../models/sms.model')
+const smsSchema = require('../models/sms.model')
 const { config, msg, Group } = require('coolsms-node-sdk')
 
 /**
@@ -27,7 +27,7 @@ module.exports = {
 	//  "updatedAt", // dateTime
 	settings: {
 		idField: '_id',
-		fields: smsModel,
+		fields: smsSchema,
 	},
 	// deletes message after 300 seconds
 	async afterConnected() {
@@ -56,10 +56,10 @@ module.exports = {
 	 */
 	actions: {
 		sendText: {
-			rest: 'GET /send-text',
+			rest: 'POST /send-text',
 			params: {
-				to: { type: 'string' },
-				text: { type: 'string' },
+				to: { type: 'string', required: true },
+				text: { type: 'string', required: true },
 			},
 			async handler(ctx) {
 				try {
@@ -85,21 +85,20 @@ module.exports = {
 						// return sms;
 						return this.textHandler(sms)
 					}
-					return this.textHandler({
-						groupId: 'G4V202201091613499GZENCFX8ITJUPP',
-						to: '00000000',
-						from: '01033925605',
+					const handle = this.textHandler({
 						type: 'SMS',
-						statusMessage: '정상 접수(이통사로 접수 예정) ',
-						country: '82',
-						messageId: 'M4V20220109161349BKAAOL9SVDUOPZR',
-						statusCode: '2000',
-						accountId: '22010924481171',
+						text,
+						to,
+						from: '01033925605',
 					})
+					if (handle) {
+						return handle
+					}
+					throw MoleculerClientError()
 					// return this.textHandler(sms);
 				} catch (error) {
 					console.error('sendText: error =', error)
-					return error
+					throw new MoleculerClientError('something went wrong ...')
 				}
 			},
 		},
@@ -141,20 +140,23 @@ module.exports = {
 			// "statusCode": "2000",
 			// "accountId": "22010924481171"
 		},
-		textHandler(text, type, code, messageSuccess) {
+		async textHandler(smsPayload) {
 			try {
-				const { text, type, code, messageSuccess } = messageSuccess
+				const { type, text, to, from } = smsPayload
 				const now = new Date()
-				this.adapter.insert({
+				const sms = await this.adapter.insert({
 					text,
 					type,
+					to,
+					from,
 					code: this.codeGen(),
 					createdAt: now,
 					updatedAt: now,
 				})
+				return sms
 			} catch (error) {
 				console.error('textHandler: error =', error)
-				return error
+				return false
 			}
 		},
 	},
