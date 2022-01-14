@@ -76,17 +76,20 @@ module.exports = {
 		updateReservation: {
 			rest: 'POST /update-reservation',
 			params: {
-				companyId: { type: 'string', required: true },
+				reservationId: { type: 'string', required: true },
 				update: { type: 'object', required: true },
 			},
 			async handler(ctx) {
 				try {
-					const { companyId, update } = ctx.params
-					const reservation = await this.adapter.findOne({ companyId })
+					const { reservationId, update } = ctx.params
+					const reservation = await this.adapter.findById(reservationId)
 					if (!reservation) throw new MoleculerClientError()
 					// const reservationUpdate = await this.reservationUpdateHandler()
 					const resUpdate = {
-						$set: update,
+						$set: {
+							...update,
+							updatedAt: new Date(),
+						},
 					}
 					const updated = await this.adapter.updateById(
 						reservation._id,
@@ -96,6 +99,46 @@ module.exports = {
 					return updated
 				} catch (error) {
 					logger.err('updateReservation: error =', error)
+					throw new MoleculerClientError('something went wrong ...')
+				}
+			},
+		},
+		getReservations: {
+			rest: 'GET /get-reservations',
+			params: {
+				companyId: { type: 'string', required: true },
+			},
+			async handler(ctx) {
+				try {
+					const { companyId } = ctx.params
+					const reservations = await this.adapter.find({ companyId })
+					const now = new Date()
+					return await reservations.filter(
+						(reservation) => new Date(reservation.date) > now,
+					)
+					// const reservation = await this.adapter.findById(ctx.params.id)
+					// return reservation
+				} catch (error) {
+					logger.err('getReservation: error =', error)
+					throw new MoleculerClientError('something went wrong ...')
+				}
+			},
+		},
+		deleteReservation: {
+			rest: 'POST /delete-reservation',
+			params: {
+				id: { type: 'string', required: true },
+			},
+			async handler(ctx) {
+				try {
+					const { id } = ctx.params
+					const reservation = await this.adapter.findById(id)
+					if (!reservation) throw new MoleculerClientError()
+					const remove = await this.adapter.removeById(reservation._id)
+					logger.debug('remove =', remove)
+					return remove
+				} catch (error) {
+					logger.err('deleteReservation: error =', error)
 					throw new MoleculerClientError('something went wrong ...')
 				}
 			},
@@ -127,7 +170,7 @@ module.exports = {
 					date,
 					slotLength,
 					createdAt: now,
-					updateAt: now,
+					updatedAt: now,
 				})
 				return insert
 			}
