@@ -112,7 +112,7 @@ module.exports = {
 					return updated
 				} catch (error) {
 					console.error('updateUser: error =', error)
-					throw new MoleculerClientError('something went wrong ...')
+					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
 		},
@@ -189,7 +189,7 @@ module.exports = {
 		},
 		async getUser(email, password) {
 			try {
-				const user = await this.adapter.findById({ email, password })
+				const user = await this.adapter.findOne({ email, password })
 				console.log(user)
 				if (user) return user
 				return false

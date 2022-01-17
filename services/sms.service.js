@@ -98,7 +98,7 @@ module.exports = {
 					// return this.textHandler(sms);
 				} catch (error) {
 					console.error('sendText: error =', error)
-					throw new MoleculerClientError('something went wrong ...')
+					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
 		},
@@ -115,7 +115,7 @@ module.exports = {
 	methods: {
 		codeGen() {
 			let result = ''
-			const CHARS = 'ABCDEFGHIJKLMNOPQRSTUV1234567890'
+			const CHARS = 'ABCDEFGHIJKLMNPQRSTUV123456789'
 			for (let i = 0; i < 6; i++) {
 				result += CHARS.charAt(Math.floor(Math.random() * CHARS.length))
 			}

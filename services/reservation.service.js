@@ -15,7 +15,6 @@ module.exports = {
 	 * mixins
 	 */
 	mixins: [DbMixin('reservation')],
-
 	/**
 	 * Settings
 	 */
@@ -27,23 +26,6 @@ module.exports = {
 		idField: '_id',
 		fields: reservationSchema,
 	},
-	// deletes message after 300 seconds
-	// async afterConnected() {
-	// 	try {
-	// 		await this.adapter.db.createIndex(
-	// 			'sms',
-	// 			{ createdAt: 1 },
-	// 			{ expireAfterSeconds: 300 },
-	// 		)
-	// 	} catch (error) {
-	// 		console.error(error)
-	// 	}
-	// },
-	/**
-	 * Model
-	 */
-	// model: UserModel,
-
 	/**
 	 * Dependencies
 	 */
@@ -69,7 +51,7 @@ module.exports = {
 					return handler
 				} catch (error) {
 					logger.err('setReservation: error =', error)
-					throw new MoleculerClientError('something went wrong ...')
+					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
 		},
@@ -99,7 +81,7 @@ module.exports = {
 					return updated
 				} catch (error) {
 					logger.err('updateReservation: error =', error)
-					throw new MoleculerClientError('something went wrong ...')
+					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
 		},
@@ -120,7 +102,7 @@ module.exports = {
 					// return reservation
 				} catch (error) {
 					logger.err('getReservation: error =', error)
-					throw new MoleculerClientError('something went wrong ...')
+					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
 		},
@@ -135,11 +117,11 @@ module.exports = {
 					const reservation = await this.adapter.findById(id)
 					if (!reservation) throw new MoleculerClientError()
 					const remove = await this.adapter.removeById(reservation._id)
-					logger.debug('remove =', remove)
+					// logger.debug('remove =', remove)
 					return remove
 				} catch (error) {
 					logger.err('deleteReservation: error =', error)
-					throw new MoleculerClientError('something went wrong ...')
+					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
 		},
