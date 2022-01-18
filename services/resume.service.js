@@ -98,9 +98,25 @@ module.exports = {
 
 		updateResume: {
 			rest: 'POST /update-resume',
-			params: {},
+			params: {
+				id: { type: 'string', required: true },
+				updateKey: { type: 'string', required: true },
+				updateVal: { type: 'string', required: true },
+			},
 			async handler(ctx) {
-				return true
+				try {
+					const update = {
+						$set: {
+							[updateKey]: updateVal,
+							updatedAt: new Date(),
+						},
+					}
+					const updated = await this.adapter.updatedById(id, update)
+					return updated
+				} catch (error) {
+					logger.err('updateResume: error =', error)
+					throw new MoleculerClientError('something went wrong ...', error)
+				}
 			},
 		},
 		deleteResume: {
