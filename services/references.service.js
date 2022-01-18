@@ -32,6 +32,11 @@ module.exports = {
 	 * Actions
 	 */
 	actions: {
+		/**
+		 * saves references on initial save of resume
+		 * @param {Array} references array of objects
+		 * @return {Array} array of reference objects
+		 */
 		saveReferences: {
 			params: {
 				references: { type: 'array', required: true },
@@ -48,6 +53,11 @@ module.exports = {
 				}
 			},
 		},
+		/**
+		 * get single reference to be used when getting resume of user
+		 * @param {String} id object id of document
+		 * @return {Object} reference doc
+		 */
 		getReference: {
 			params: {
 				id: { type: 'string', required: true },

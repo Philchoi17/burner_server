@@ -69,6 +69,11 @@ module.exports = {
 	 * Actions
 	 */
 	actions: {
+		/**
+		 * @param {String} to email to send to
+		 * @param {string} text text inside email
+		 * @return {Object} email doc
+		 */
 		send: {
 			rest: 'POST /send-email',
 			params: {
@@ -99,6 +104,7 @@ module.exports = {
 				}
 			},
 		},
+		verify: {},
 	},
 
 	/**

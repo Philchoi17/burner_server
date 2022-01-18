@@ -35,6 +35,14 @@ module.exports = {
 	 * Actions
 	 */
 	actions: {
+		/**
+		 * sets reservation
+		 * @param {String} companyId
+		 * @param {String} date a string with dash date format
+		 * @param {Number} timeSlot time in military time i.e. 1400
+		 * @param {Number} slotLength number in hours
+		 * @return {Object} resertvation doc
+		 */
 		setReservation: {
 			rest: 'POST /set-reservation',
 			params: {
@@ -55,6 +63,12 @@ module.exports = {
 				}
 			},
 		},
+		/**
+		 * updates reservation document
+		 * @param {String} reservationId
+		 * @param {Object} update key value pair for update wanted
+		 * @return {Object} returns updated reservation doc
+		 */
 		updateReservation: {
 			rest: 'POST /update-reservation',
 			params: {
@@ -85,6 +99,11 @@ module.exports = {
 				}
 			},
 		},
+		/**
+		 * get reservations of company
+		 * @param {String} companyId string of company id
+		 * @return {Array} array of reservation objects
+		 */
 		getReservations: {
 			rest: 'GET /get-reservations',
 			params: {
@@ -106,6 +125,12 @@ module.exports = {
 				}
 			},
 		},
+		/**
+		 * delete reservation
+		 * @param {String} id reservation id
+		 *
+		 *
+		 */
 		deleteReservation: {
 			rest: 'POST /delete-reservation',
 			params: {
