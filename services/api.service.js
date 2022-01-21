@@ -22,12 +22,17 @@ module.exports = {
 
 		// Global Express middlewares. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Middlewares
 		use: [],
+		cors: {
+			methods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
+			// origin: ['http://localhost:3000'],
+			origin: '*',
+		},
 
 		routes: [
 			{
 				path: '/api',
 
-				whitelist: ['**'],
+				whitelist: ['**', '*', 'http://localhost:3006'],
 
 				// Route-level Express middlewares. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Middlewares
 				use: [],

@@ -76,6 +76,21 @@ module.exports = {
 				}
 			},
 		},
+		deleteUserWorkHistory: {
+			params: {
+				userId: { type: 'string', required: true },
+			},
+			async handler(ctx) {
+				try {
+					const { userId } = ctx.params
+					const handleDelete = await this.userWorkHistoryDeleteHandler(userId)
+					return handleDelete
+				} catch (error) {
+					logger.err('deleteAllWorkHistory: error =', error)
+					return error
+				}
+			},
+		},
 	},
 
 	/**
@@ -107,6 +122,15 @@ module.exports = {
 				return docIds
 			} catch (error) {
 				logger.err('workHistoryInsertMany: error =', error)
+				return false
+			}
+		},
+		async userWorkHistoryDeleteHandler(userId) {
+			try {
+				const removeMany = await this.adapter.removeMany({ userId })
+				return removeMany
+			} catch (error) {
+				logger.err('userWorkHistoryDeleteHandler: error =', error)
 				return false
 			}
 		},

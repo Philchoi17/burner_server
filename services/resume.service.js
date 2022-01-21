@@ -105,6 +105,7 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+					const { id, updateKey, updateVal } = ctx.params
 					const update = {
 						$set: {
 							[updateKey]: updateVal,
@@ -121,9 +122,28 @@ module.exports = {
 		},
 		deleteResume: {
 			rest: 'POST /delete-resume',
-			params: {},
+			params: {
+				id: { type: 'string', optional: true },
+				userId: { type: 'string', optional: true },
+			},
 			async handler(ctx) {
-				return true
+				try {
+					const { id, userId } = ctx.params
+					const deleteResume = await this.handleDeleteResume(id)
+					const deleteWorkHistory = ctx.call(
+						'workHistory.deleteUserWorkHistory',
+						{
+							userId,
+						},
+					)
+					const deleteReferences = ctx.call('references.deleteReferences', {
+						userId,
+					})
+					return { deleteResume, deleteWorkHistory, deleteReferences }
+				} catch (error) {
+					logger.err('deleteResume: error =', error)
+					throw new MoleculerClientError('something went wrong ...')
+				}
 			},
 		},
 		getResume: {
@@ -164,6 +184,42 @@ module.exports = {
 				}
 			},
 		},
+		addReference: {
+			rest: 'POST /add-reference',
+			params: {
+				userId: { type: 'string', required: true },
+				reference: { type: 'object', required: true },
+			},
+			async handler(ctx) {
+				try {
+					const { userId, reference } = ctx.params
+					reference.userId = userId
+					const addReference = await ctx.call('references.addReference', {
+						reference,
+					})
+					// return addReference
+					const updatedResume = await this.addReferenceHandler(
+						userId,
+						addReference._id,
+					)
+					return updatedResume
+				} catch (error) {
+					logger.err('addReference: error =', error)
+					throw new MoleculerClientError('something went wrong ...', error)
+				}
+			},
+		},
+		deleteReference: {
+			rest: 'POST /delete-reference',
+			params: {
+				userId: { type: 'string', required: true },
+				referenceId: { type: 'string', required: true },
+				resumeId: { type: 'string', required: true },
+			},
+			async handler(ctx) {
+				return
+			},
+		},
 	},
 
 	/**
@@ -191,6 +247,22 @@ module.exports = {
 			const resume = await this.adapter.findOne({ userId })
 			if (!resume) return false
 			return resume
+		},
+		async handleDeleteResume(_id) {
+			const removeById = await this.adapter.removeById(_id)
+			return removeById
+		},
+		async addReferenceHandler(userId, referenceId) {
+			const resume = await this.adapter.findOne({ userId })
+			logger.debug('resume =', resume)
+			const update = {
+				$set: {
+					references: [...resume.references, referenceId],
+					updatedAt: new Date(),
+				},
+			}
+			const updated = this.adapter.updateById(resume._id, update)
+			return updated
 		},
 	},
 

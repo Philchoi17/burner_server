@@ -49,7 +49,8 @@ module.exports = {
 					else throw new MoleculerClientError()
 				} catch (error) {
 					logger.err('saveReferences: error =', error)
-					throw new MoleculerClientError('something went wrong ...', error)
+					// throw new MoleculerClientError('something went wrong ...', error)
+					return error
 				}
 			},
 		},
@@ -68,7 +69,46 @@ module.exports = {
 					return getOne
 				} catch (error) {
 					logger.err('getReferences: error =', error)
-					throw new MoleculerClientError('something went wrong ...', error)
+					return error
+					// throw new MoleculerClientError('something went wrong ...', error)
+				}
+			},
+		},
+		deleteReferences: {
+			params: {
+				userId: { type: 'string', required: true },
+			},
+			async handler(ctx) {
+				try {
+					const { userId } = ctx.params
+					const handleDelete = await this.referencesDeleteHandler(userId)
+					return handleDelete
+				} catch (error) {
+					logger.err('deleteReference: error =', error)
+					return error
+				}
+			},
+		},
+		addReference: {
+			paras: {
+				reference: { type: 'object', required: true },
+			},
+			async handler(ctx) {
+				try {
+					const { reference } = ctx.params
+					logger.debug('reference =', reference)
+					logger.debug('ctx.params =', ctx.params)
+					const now = new Date()
+					logger.debug('reference =', reference)
+					const insert = await this.adapter.insert({
+						...reference,
+						createdAt: now,
+						updatedAt: now,
+					})
+					return insert
+				} catch (error) {
+					logger.err('addReference: error =', error)
+					return false
 				}
 			},
 		},
@@ -105,6 +145,15 @@ module.exports = {
 				return insertMany.map((reference) => reference._id)
 			} catch (error) {
 				logger.err('referencesInsertMany: error =', error)
+				return false
+			}
+		},
+		async referencesDeleteHandler(userId) {
+			try {
+				const removeMany = await this.adapter.removeMany({ userId })
+				return removeMany
+			} catch (error) {
+				logger.err('referenceDeleteHandler: error =', error)
 				return false
 			}
 		},
