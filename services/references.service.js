@@ -90,14 +90,12 @@ module.exports = {
 			},
 		},
 		addReference: {
-			paras: {
+			params: {
 				reference: { type: 'object', required: true },
 			},
 			async handler(ctx) {
 				try {
 					const { reference } = ctx.params
-					logger.debug('reference =', reference)
-					logger.debug('ctx.params =', ctx.params)
 					const now = new Date()
 					logger.debug('reference =', reference)
 					const insert = await this.adapter.insert({
@@ -108,6 +106,21 @@ module.exports = {
 					return insert
 				} catch (error) {
 					logger.err('addReference: error =', error)
+					return false
+				}
+			},
+		},
+		removeReference: {
+			params: {
+				id: { type: 'string', required: true },
+			},
+			async handler(ctx) {
+				try {
+					const { id } = ctx.params
+					const removeById = await this.adapter.removeById(id)
+					return removeById
+				} catch (error) {
+					logger.err('removeReference: error =', error)
 					return false
 				}
 			},

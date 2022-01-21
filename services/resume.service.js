@@ -217,7 +217,18 @@ module.exports = {
 				resumeId: { type: 'string', required: true },
 			},
 			async handler(ctx) {
-				return
+				try {
+					const { userId, referenceId } = ctx.params
+					const removeReference = await removeReferenceHandler(
+						userId,
+						referenceId,
+					)
+					await ctx.call('references.removeReference', { id: referenceId })
+					return removeReference
+				} catch (error) {
+					logger.err('deleteReference: error =', error)
+					throw new MoleculerClientError('something went wrong', error)
+				}
 			},
 		},
 	},
@@ -263,6 +274,22 @@ module.exports = {
 			}
 			const updated = this.adapter.updateById(resume._id, update)
 			return updated
+		},
+		async removeReferenceHandler(userId, referenceId) {
+			try {
+				const resume = await this.adapter.findOne({ userId })
+				const update = {
+					$set: {
+						references: resume.references.filter(
+							(reference) => reference != referenceId,
+						),
+					},
+				}
+				const updated = await this.adapter.updateById(resume._id, update)
+				return updated
+			} catch (error) {
+				logger.err('removeReferenceHandler: error =', error)
+			}
 		},
 	},
 
