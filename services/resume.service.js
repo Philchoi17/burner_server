@@ -214,12 +214,12 @@ module.exports = {
 			params: {
 				userId: { type: 'string', required: true },
 				referenceId: { type: 'string', required: true },
-				resumeId: { type: 'string', required: true },
+				// resumeId: { type: 'string', required: true },
 			},
 			async handler(ctx) {
 				try {
 					const { userId, referenceId } = ctx.params
-					const removeReference = await removeReferenceHandler(
+					const removeReference = await this.removeReferenceHandler(
 						userId,
 						referenceId,
 					)
@@ -278,6 +278,7 @@ module.exports = {
 		async removeReferenceHandler(userId, referenceId) {
 			try {
 				const resume = await this.adapter.findOne({ userId })
+
 				const update = {
 					$set: {
 						references: resume.references.filter(
