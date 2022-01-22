@@ -134,17 +134,24 @@ module.exports = {
 
 			if (auth && auth.startsWith('Bearer')) {
 				const token = auth.split(' ')[1]
-
-				// Check the token. Tip: call a service which verify the token. E.g. `accounts.resolveToken`
-				if (token == '123456') {
-					// Returns the resolved user. It will be set to the `ctx.meta.user`
-					return { id: 1, name: 'John Doe' }
-				} else {
-					// Invalid token
-					throw new ApiGateway.Errors.UnAuthorizedError(
-						ApiGateway.Errors.ERR_INVALID_TOKEN,
-					)
+				const decodedToken = await ctx.call('users.decodeToken', { token })
+				if (decodedToken) {
+					return decodedToken
 				}
+				throw new ApiGateway.Errors.UnAuthorizedError(
+					ApiGateway.Erros.ERR_INVALID_TOKEN,
+				)
+
+				// // Check the token. Tip: call a service which verify the token. E.g. `accounts.resolveToken`
+				// if (token == '123456') {
+				// 	// Returns the resolved user. It will be set to the `ctx.meta.user`
+				// 	return { id: 1, name: 'John Doe' }
+				// } else {
+				// 	// Invalid token
+				// 	throw new ApiGateway.Errors.UnAuthorizedError(
+				// 		ApiGateway.Errors.ERR_INVALID_TOKEN,
+				// 	)
+				// }
 			} else {
 				// No token. Throw an error or do nothing if anonymous access is allowed.
 				// throw new E.UnAuthorizedError(E.ERR_NO_TOKEN);

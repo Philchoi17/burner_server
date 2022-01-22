@@ -98,6 +98,7 @@ module.exports = {
 		},
 		updateUser: {
 			rest: 'POST /update-user',
+			auth: 'required',
 			params: {
 				userId: { type: 'string', required: true },
 				updateKey: { type: 'string', required: true },
@@ -166,7 +167,7 @@ module.exports = {
 					return decoded
 				} catch (error) {
 					this.logger.error('resolveToken: error =', error)
-					return false
+					throw new MoleculerClientError(error)
 				}
 				// const decoded = await new this.Promise((resolve, reject) => {
 				// 	jwt.verify(ctx.params.token, TOKEN_SECRET, (err, decoded) => {
@@ -248,7 +249,7 @@ module.exports = {
 					},
 					process.env.TOKEN_SECRET,
 					{
-						expiresIn: 10,
+						expiresIn: 10, //  1000, "2 days", "10h", "7d"
 					},
 				)
 				return token
