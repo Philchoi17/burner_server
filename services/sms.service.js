@@ -38,7 +38,7 @@ module.exports = {
 				{ expireAfterSeconds: 300 },
 			)
 		} catch (error) {
-			console.error(error)
+			this.logger.error(error)
 		}
 	},
 	/**
@@ -97,7 +97,7 @@ module.exports = {
 					throw MoleculerClientError()
 					// return this.textHandler(sms);
 				} catch (error) {
-					console.error('sendText: error =', error)
+					this.logger.error('sendText: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -155,7 +155,7 @@ module.exports = {
 				})
 				return sms
 			} catch (error) {
-				console.error('textHandler: error =', error)
+				this.logger.error('textHandler: error =', error)
 				return false
 			}
 		},

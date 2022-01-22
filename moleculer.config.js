@@ -27,7 +27,7 @@ require('dotenv').config()
  */
 module.exports = {
 	// Namespace of nodes to segment your nodes on the same network.
-	namespace: '',
+	namespace: 'dev',
 	// Unique node identifier. Must be unique in a namespace.
 	nodeID: null,
 	// Custom metadata store. Store here what you want. Accessing: `this.broker.metadata`
@@ -41,13 +41,13 @@ module.exports = {
 			// Using colors on the output
 			colors: true,
 			// Print module names with different colors (like docker-compose for containers)
-			moduleColors: false,
+			moduleColors: true,
 			// Line formatter. It can be "json", "short", "simple", "full", a `Function` or a template string like "{timestamp} {level} {nodeID}/{mod}: {msg}"
-			formatter: 'full',
+			formatter: 'short',
 			// Custom object printer. If not defined, it uses the `util.inspect` method.
 			objectPrinter: null,
 			// Auto-padding the module name in order to messages begin at the same column.
-			autoPadding: false,
+			autoPadding: true,
 		},
 	},
 	// Default log level for built-in console logger. It can be overwritten in logger options above.
@@ -75,13 +75,13 @@ module.exports = {
 	// Retry policy settings. More info: https://moleculer.services/docs/0.14/fault-tolerance.html#Retry
 	retryPolicy: {
 		// Enable feature
-		enabled: false,
+		enabled: true,
 		// Count of retries
-		retries: 5,
+		retries: 3,
 		// First delay in milliseconds.
-		delay: 100,
+		delay: 200,
 		// Maximum delay in milliseconds.
-		maxDelay: 1000,
+		maxDelay: 2000,
 		// Backoff factor for delay. 2 means exponential backoff.
 		factor: 2,
 		// A function to check failed requests.
@@ -122,7 +122,7 @@ module.exports = {
 	// Settings of Circuit Breaker. More info: https://moleculer.services/docs/0.14/fault-tolerance.html#Circuit-Breaker
 	circuitBreaker: {
 		// Enable feature
-		enabled: false,
+		enabled: true,
 		// Threshold value. 0.5 means that 50% should be failed for tripping.
 		threshold: 0.5,
 		// Minimum request count. Below it, CB does not trip.

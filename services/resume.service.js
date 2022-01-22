@@ -3,7 +3,6 @@
 const DbMixin = require('../mixins/db.mixin')
 const { MoleculerClientError } = require('moleculer').Errors
 const resumeSchema = require('../models/resume.model')
-const logger = require('../logger')
 
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -41,12 +40,14 @@ module.exports = {
 		// updatedAt: Date,
 		setResume: {
 			rest: 'POST /set-resume',
+			auth: 'required',
 			params: {
 				userId: { type: 'string', required: true },
 				coverLetter: { type: 'string', optional: true },
 				workHistory: { type: 'array', optional: true },
 				references: { type: 'array', optional: true },
 			},
+			// timeout: 1200000,
 			async handler(ctx) {
 				try {
 					const { userId, coverLetter, workHistory, references } = ctx.params
@@ -87,7 +88,7 @@ module.exports = {
 					)
 					return insert
 				} catch (error) {
-					logger.err('setResume: error =', error)
+					this.logger.error('setResume: error =', error)
 					if (error == 'MoleculerClientError: existing') {
 						throw new MoleculerClientError('resume already exists ...')
 					}
@@ -115,7 +116,7 @@ module.exports = {
 					const updated = await this.adapter.updatedById(id, update)
 					return updated
 				} catch (error) {
-					logger.err('updateResume: error =', error)
+					this.logger.error('updateResume: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -141,13 +142,14 @@ module.exports = {
 					})
 					return { deleteResume, deleteWorkHistory, deleteReferences }
 				} catch (error) {
-					logger.err('deleteResume: error =', error)
+					this.logger.error('deleteResume: error =', error)
 					throw new MoleculerClientError('something went wrong ...')
 				}
 			},
 		},
 		getResume: {
 			rest: 'GET /get-resume',
+			auth: 'required',
 			params: {
 				userId: { type: 'string', required: true },
 			},
@@ -179,7 +181,7 @@ module.exports = {
 
 					return resumePayload
 				} catch (error) {
-					logger.err('getResume: error =', error)
+					this.logger.error('getResume: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -204,7 +206,7 @@ module.exports = {
 					)
 					return updatedResume
 				} catch (error) {
-					logger.err('addReference: error =', error)
+					this.logger.error('addReference: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -226,7 +228,7 @@ module.exports = {
 					await ctx.call('references.removeReference', { id: referenceId })
 					return removeReference
 				} catch (error) {
-					logger.err('deleteReference: error =', error)
+					this.logger.error('deleteReference: error =', error)
 					throw new MoleculerClientError('something went wrong', error)
 				}
 			},
@@ -265,7 +267,7 @@ module.exports = {
 		},
 		async addReferenceHandler(userId, referenceId) {
 			const resume = await this.adapter.findOne({ userId })
-			logger.debug('resume =', resume)
+			this.logger.info('resume =', resume)
 			const update = {
 				$set: {
 					references: [...resume.references, referenceId],
@@ -289,7 +291,7 @@ module.exports = {
 				const updated = await this.adapter.updateById(resume._id, update)
 				return updated
 			} catch (error) {
-				logger.err('removeReferenceHandler: error =', error)
+				this.logger.error('removeReferenceHandler: error =', error)
 			}
 		},
 	},

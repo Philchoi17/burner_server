@@ -3,7 +3,7 @@
 const DbMixin = require('../mixins/db.mixin')
 const { MoleculerClientError } = require('moleculer').Errors
 const userSchema = require('../models/users.model')
-const logger = require('../logger')
+const jwt = require('jsonwebtoken')
 
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -64,7 +64,7 @@ module.exports = {
 					const insert = await this.insertUser(user)
 					return insert
 				} catch (error) {
-					console.error('createUser: handler: error =', error)
+					this.logger.error('createUser: handler: error =', error)
 					if (error == 'MoleculerClientError: same') {
 						throw new MoleculerClientError('email already exists ...', 409)
 					}
@@ -85,9 +85,13 @@ module.exports = {
 					if (!user) {
 						throw new MoleculerClientError()
 					}
-					return user
+					// return user
+					const token = await this.generateJWT(user)
+					return {
+						token,
+					}
 				} catch (error) {
-					console.error('loginUser: error =', error)
+					this.logger.error('loginUser: error =', error)
 					throw new MoleculerClientError('Wrong credentials ...', 401)
 				}
 			},
@@ -111,7 +115,7 @@ module.exports = {
 					const updated = await this.adapter.updateById(userId, update)
 					return updated
 				} catch (error) {
-					console.error('updateUser: error =', error)
+					this.logger.error('updateUser: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -131,6 +135,9 @@ module.exports = {
 				return sendText
 			},
 		},
+		/**
+		 * deletes user
+		 */
 		deleteUser: {
 			rest: 'POST /delete-user',
 			params: {
@@ -139,14 +146,43 @@ module.exports = {
 				// code: { type: 'string' },
 			},
 			async handler(ctx) {
-				logger.debug('Hello')
+				this.logger.info('Hello')
 				return true
 			},
 		},
+		decodeToken: {
+			rest: 'POST /decode-token',
+			cache: {
+				keys: ['token'],
+				ttl: 60 * 60, // 1 hour
+			},
+			params: {
+				token: 'string',
+			},
+			async handler(ctx) {
+				try {
+					const { token } = ctx.params
+					const decoded = jwt.verify(token, process.env.TOKEN_SECRET)
+					return decoded
+				} catch (error) {
+					this.logger.error('resolveToken: error =', error)
+					return false
+				}
+				// const decoded = await new this.Promise((resolve, reject) => {
+				// 	jwt.verify(ctx.params.token, TOKEN_SECRET, (err, decoded) => {
+				// 		if (err) {
+				// 			return reject(err)
+				// 		}
+
+				// 		resolve(decoded)
+				// 	})
+				// })
+				// if (decoded._id) {
+				// 	return this.getById(decoded._id)
+				// }
+			},
+		},
 	},
-	/**
-	 * deletes user
-	 */
 
 	/**
 	 * Events
@@ -170,12 +206,12 @@ module.exports = {
 		},
 		async findOne(key, val) {
 			try {
-				console.log('findOne =', val)
+				this.logger.info('findOne =', val)
 				const find = await this.adapter.findOne({ [key]: val })
 				if (find) return true
 				else return false
 			} catch (error) {
-				console.error('findOne: error =', error)
+				this.logger.error('findOne: error =', error)
 				return false
 			}
 		},
@@ -183,19 +219,42 @@ module.exports = {
 			try {
 				return await this.adapter.insert(userPayload)
 			} catch (error) {
-				console.error('methods: insertUser: error =', error)
+				this.logger.error('methods: insertUser: error =', error)
 				return error
 			}
 		},
 		async getUser(email, password) {
 			try {
 				const user = await this.adapter.findOne({ email, password })
-				console.log(user)
+				// this.logger.info(user)
+				// this.logger.debug('DEBUG')
+				// this.logger.trace('TRACE')
+				// this.logger.error('ERROR')
+				// this.logger.fatal('FATAL')
+				// this.logger.warn('WARN')
 				if (user) return user
 				return false
 			} catch (error) {
-				console.error('getUser: error =', error)
+				this.logger.error('getUser: error =', error)
 				return error
+			}
+		},
+		async generateJWT(user) {
+			try {
+				const token = jwt.sign(
+					{
+						...user,
+						// exp: Math.floor(Date.now() / 1000) * 3600 * 60 * 60 * 365,
+					},
+					process.env.TOKEN_SECRET,
+					{
+						expiresIn: 10,
+					},
+				)
+				return token
+			} catch (error) {
+				this.logger.error('generateJWT: error =', error)
+				return false
 			}
 		},
 	},

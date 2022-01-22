@@ -5,7 +5,6 @@ const { MoleculerClientError } = require('moleculer').Errors
 const emailSchema = require('../models/email.model')
 // const { SMTPClient } = require('emailjs')
 const nodemailer = require('nodemailer')
-const logger = require('../logger')
 
 // const client = new SMTPClient({
 // 	user: process.env.EMAIL,
@@ -99,7 +98,7 @@ module.exports = {
 
 					return insertedEmail
 				} catch (error) {
-					logger.err('error =', error)
+					this.logger.error('error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},

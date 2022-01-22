@@ -3,7 +3,6 @@
 const DbMixin = require('../mixins/db.mixin')
 const { MoleculerClientError } = require('moleculer').Errors
 const referenceSchema = require('../models/reference.model')
-const logger = require('../logger')
 
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -48,7 +47,7 @@ module.exports = {
 					if (insertMany) return insertMany
 					else throw new MoleculerClientError()
 				} catch (error) {
-					logger.err('saveReferences: error =', error)
+					this.logger.error('saveReferences: error =', error)
 					// throw new MoleculerClientError('something went wrong ...', error)
 					return error
 				}
@@ -68,7 +67,7 @@ module.exports = {
 					const getOne = await this.adapter.findById(ctx.params.id)
 					return getOne
 				} catch (error) {
-					logger.err('getReferences: error =', error)
+					this.logger.error('getReferences: error =', error)
 					return error
 					// throw new MoleculerClientError('something went wrong ...', error)
 				}
@@ -84,7 +83,7 @@ module.exports = {
 					const handleDelete = await this.referencesDeleteHandler(userId)
 					return handleDelete
 				} catch (error) {
-					logger.err('deleteReference: error =', error)
+					this.logger.error('deleteReference: error =', error)
 					return error
 				}
 			},
@@ -97,7 +96,7 @@ module.exports = {
 				try {
 					const { reference } = ctx.params
 					const now = new Date()
-					logger.debug('reference =', reference)
+					this.logger.info('reference =', reference)
 					const insert = await this.adapter.insert({
 						...reference,
 						createdAt: now,
@@ -105,7 +104,7 @@ module.exports = {
 					})
 					return insert
 				} catch (error) {
-					logger.err('addReference: error =', error)
+					this.logger.error('addReference: error =', error)
 					return false
 				}
 			},
@@ -120,7 +119,7 @@ module.exports = {
 					const removeById = await this.adapter.removeById(id)
 					return removeById
 				} catch (error) {
-					logger.err('removeReference: error =', error)
+					this.logger.error('removeReference: error =', error)
 					return false
 				}
 			},
@@ -157,7 +156,7 @@ module.exports = {
 				)
 				return insertMany.map((reference) => reference._id)
 			} catch (error) {
-				logger.err('referencesInsertMany: error =', error)
+				this.logger.error('referencesInsertMany: error =', error)
 				return false
 			}
 		},
@@ -166,7 +165,7 @@ module.exports = {
 				const removeMany = await this.adapter.removeMany({ userId })
 				return removeMany
 			} catch (error) {
-				logger.err('referenceDeleteHandler: error =', error)
+				this.logger.error('referenceDeleteHandler: error =', error)
 				return false
 			}
 		},

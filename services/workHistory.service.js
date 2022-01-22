@@ -3,7 +3,6 @@
 const DbMixin = require('../mixins/db.mixin')
 const { MoleculerClientError } = require('moleculer').Errors
 const workHistorySchema = require('../models/workHistory.model')
-const logger = require('../logger')
 
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -49,14 +48,14 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { userId, workHistory } = ctx.params
-					logger.debug('**workHistory** =', workHistory)
+					this.logger.info('**workHistory** =', workHistory)
 					const insertMany = await this.workHistoryInsertMany(
 						userId,
 						workHistory,
 					)
 					return insertMany
 				} catch (error) {
-					logger.err('saveWorkHistories: error =', error)
+					this.logger.error('saveWorkHistories: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -68,10 +67,10 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const getOne = await this.adapter.findById(ctx.params.id)
-					// logger.debug('getOne =', getOne)
+					// this.logger.info('getOne =', getOne)
 					return getOne
 				} catch (error) {
-					logger.err('getWorkHistory: error =', error)
+					this.logger.error('getWorkHistory: error =', error)
 					return false
 				}
 			},
@@ -86,7 +85,7 @@ module.exports = {
 					const handleDelete = await this.userWorkHistoryDeleteHandler(userId)
 					return handleDelete
 				} catch (error) {
-					logger.err('deleteAllWorkHistory: error =', error)
+					this.logger.error('deleteAllWorkHistory: error =', error)
 					return error
 				}
 			},
@@ -104,7 +103,10 @@ module.exports = {
 	methods: {
 		async workHistoryInsertMany(userId, workHistoryArr) {
 			try {
-				logger.debug('workHistoryInsertMany: workHistoryArr =', workHistoryArr)
+				this.logger.info(
+					'workHistoryInsertMany: workHistoryArr =',
+					workHistoryArr,
+				)
 				const now = new Date()
 				const insertMany = await this.adapter.insertMany(
 					workHistoryArr.map((workHistory) => {
@@ -121,7 +123,7 @@ module.exports = {
 				const docIds = await insertMany.map((item) => item._id)
 				return docIds
 			} catch (error) {
-				logger.err('workHistoryInsertMany: error =', error)
+				this.logger.error('workHistoryInsertMany: error =', error)
 				return false
 			}
 		},
@@ -130,7 +132,7 @@ module.exports = {
 				const removeMany = await this.adapter.removeMany({ userId })
 				return removeMany
 			} catch (error) {
-				logger.err('userWorkHistoryDeleteHandler: error =', error)
+				this.logger.error('userWorkHistoryDeleteHandler: error =', error)
 				return false
 			}
 		},

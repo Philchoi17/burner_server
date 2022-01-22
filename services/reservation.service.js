@@ -3,7 +3,6 @@
 const DbMixin = require('../mixins/db.mixin')
 const { MoleculerClientError } = require('moleculer').Errors
 const reservationSchema = require('../models/reservation.model')
-const logger = require('../logger')
 
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -58,7 +57,7 @@ module.exports = {
 					if (!handler) throw new MoleculerClientError()
 					return handler
 				} catch (error) {
-					logger.err('setReservation: error =', error)
+					this.logger.error('setReservation: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -91,10 +90,10 @@ module.exports = {
 						reservation._id,
 						resUpdate,
 					)
-					logger.debug('updated =', updated)
+					this.logger.info('updated =', updated)
 					return updated
 				} catch (error) {
-					logger.err('updateReservation: error =', error)
+					this.logger.error('updateReservation: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -120,7 +119,7 @@ module.exports = {
 					// const reservation = await this.adapter.findById(ctx.params.id)
 					// return reservation
 				} catch (error) {
-					logger.err('getReservation: error =', error)
+					this.logger.error('getReservation: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -142,10 +141,10 @@ module.exports = {
 					const reservation = await this.adapter.findById(id)
 					if (!reservation) throw new MoleculerClientError()
 					const remove = await this.adapter.removeById(reservation._id)
-					// logger.debug('remove =', remove)
+					// this.logger.info('remove =', remove)
 					return remove
 				} catch (error) {
-					logger.err('deleteReservation: error =', error)
+					this.logger.error('deleteReservation: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
 				}
 			},
@@ -168,7 +167,7 @@ module.exports = {
 				timeSlot,
 				date,
 			})
-			// logger.debug('reservation =', reservation)
+			// this.logger.info('reservation =', reservation)
 			if (!reservation) {
 				const now = new Date()
 				const insert = await this.adapter.insert({

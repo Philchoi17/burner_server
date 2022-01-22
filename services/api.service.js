@@ -32,7 +32,7 @@ module.exports = {
 			{
 				path: '/api',
 
-				whitelist: ['**', '*', 'http://localhost:3006'],
+				whitelist: ['**'],
 
 				// Route-level Express middlewares. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Middlewares
 				use: [],
@@ -41,10 +41,10 @@ module.exports = {
 				mergeParams: true,
 
 				// Enable authentication. Implement the logic into `authenticate` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authentication
-				authentication: false,
+				authentication: true, // WHERE TO HANDLE AUTHENTICATION
 
 				// Enable authorization. Implement the logic into `authorize` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authorization
-				authorization: false,
+				authorization: true, // WHERE TO HANDLE AUTHORIZATION
 
 				// The auto-alias feature allows you to declare your route alias directly in your services.
 				// The gateway will dynamically build the full routes from service schema.
@@ -133,7 +133,7 @@ module.exports = {
 			const auth = req.headers['authorization']
 
 			if (auth && auth.startsWith('Bearer')) {
-				const token = auth.slice(7)
+				const token = auth.split(' ')[1]
 
 				// Check the token. Tip: call a service which verify the token. E.g. `accounts.resolveToken`
 				if (token == '123456') {
