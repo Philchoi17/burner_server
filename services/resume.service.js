@@ -40,7 +40,7 @@ module.exports = {
 		// updatedAt: Date,
 		setResume: {
 			rest: 'POST /set-resume',
-			auth: 'required',
+			// auth: 'required',
 			params: {
 				userId: { type: 'string', required: true },
 				coverLetter: { type: 'string', optional: true },
@@ -149,7 +149,7 @@ module.exports = {
 		},
 		getResume: {
 			rest: 'GET /get-resume',
-			auth: 'required',
+			// auth: 'required',
 			params: {
 				userId: { type: 'string', required: true },
 			},
@@ -199,12 +199,14 @@ module.exports = {
 					const addReference = await ctx.call('references.addReference', {
 						reference,
 					})
-					// return addReference
 					const updatedResume = await this.addReferenceHandler(
 						userId,
 						addReference._id,
 					)
 					return updatedResume
+					// const resume = await this.getResumeHandler(userId)
+					// this.logger.info('resume =', resume)
+					// return resume
 				} catch (error) {
 					this.logger.error('addReference: error =', error)
 					throw new MoleculerClientError('something went wrong ...', error)
@@ -267,7 +269,7 @@ module.exports = {
 		},
 		async addReferenceHandler(userId, referenceId) {
 			const resume = await this.adapter.findOne({ userId })
-			this.logger.info('resume =', resume)
+			// this.logger.info('resume =', resume)
 			const update = {
 				$set: {
 					references: [...resume.references, referenceId],

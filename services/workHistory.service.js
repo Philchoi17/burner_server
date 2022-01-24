@@ -31,7 +31,7 @@ module.exports = {
 	 * Actions
 	 */
 	actions: {
-		saveWorkHistory: {
+		addWorkHistory: {
 			params: {
 				userId: { type: 'string', required: true },
 				workHistory: { type: 'object', required: true },
@@ -66,9 +66,9 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					const getOne = await this.adapter.findById(ctx.params.id)
-					// this.logger.info('getOne =', getOne)
-					return getOne
+					const findById = await this.adapter.findById(ctx.params.id)
+					// this.logger.info('findById =', getOne)
+					return findById
 				} catch (error) {
 					this.logger.error('getWorkHistory: error =', error)
 					return false

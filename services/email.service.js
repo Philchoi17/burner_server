@@ -51,7 +51,7 @@ module.exports = {
 				{ expireAfterSeconds: 300 },
 			)
 		} catch (error) {
-			console.error(error)
+			this.logger.error(error)
 		}
 	},
 	/**
@@ -83,17 +83,18 @@ module.exports = {
 				try {
 					const { to, text } = ctx.params
 					const code = this.codeGen()
-					await transporter.sendMail({
-						from: `"Phil" <${process.env.EMAIL}>`,
-						to,
-						subject: 'Message from Burner Server',
-						text,
-						html: `
-							<a href='#'>send to: ${to}</a>
-							<p>${text}</p>
-							<p>${code}</p>
-						`,
-					})
+					await this.sendMail(to, text, code)
+					// await transporter.sendMail({
+					// 	from: `"Phil" <${process.env.EMAIL}>`,
+					// 	to,
+					// 	subject: 'Message from Burner Server',
+					// 	text,
+					// 	html: `
+					// 		<a href='#'>send to: ${to}</a>
+					// 		<p>${text}</p>
+					// 		<p>${code}</p>
+					// 	`,
+					// })
 					const insertedEmail = await this.handleInsert(text, to, code)
 
 					return insertedEmail
@@ -109,12 +110,32 @@ module.exports = {
 	/**
 	 * Events
 	 */
-	events: {},
+	events: {
+		'user.created'(ctx) {
+			const { email, name } = ctx.params
+			// ctx.send({ to: email, text: `hello ${name}` })
+			this.sendMail(email, name, null)
+			this.logger.info('ctx =', ctx)
+		},
+	},
 
 	/**
 	 * Methods
 	 */
 	methods: {
+		async sendMail(to, text, code) {
+			return await transporter.sendMail({
+				from: `"Phil" <${process.env.EMAIL}>`,
+				to,
+				subject: 'Message from Burner Server',
+				text,
+				html: `
+					<a href='#'>send to: ${to}</a>
+					<p>${text}</p>
+					${code && `<p>${code}</p>`}
+				`,
+			})
+		},
 		codeGen() {
 			let result = ''
 			const CHARS = 'ABCDEFGHIJKLMNPQRSTUV123456789'

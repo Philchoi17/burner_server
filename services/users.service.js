@@ -60,8 +60,11 @@ module.exports = {
 					const repeated = await this.findOne('email', email)
 					if (repeated) throw new MoleculerClientError('same')
 					const user = this.userFormat(email, password, name)
-
 					const insert = await this.insertUser(user)
+					this.broker.emit('user.created', {
+						email,
+						name,
+					})
 					return insert
 				} catch (error) {
 					this.logger.error('createUser: handler: error =', error)
@@ -98,7 +101,7 @@ module.exports = {
 		},
 		updateUser: {
 			rest: 'POST /update-user',
-			auth: 'required',
+			// auth: 'required',
 			params: {
 				userId: { type: 'string', required: true },
 				updateKey: { type: 'string', required: true },
@@ -149,6 +152,12 @@ module.exports = {
 			async handler(ctx) {
 				this.logger.info('Hello')
 				return true
+			},
+		},
+		me: {
+			rest: '/POST /me',
+			async handler(ctx) {
+				return ctx.meta.user
 			},
 		},
 		decodeToken: {
@@ -249,7 +258,7 @@ module.exports = {
 					},
 					process.env.TOKEN_SECRET,
 					{
-						expiresIn: 10, //  1000, "2 days", "10h", "7d"
+						expiresIn: '1d', //  1000, "2 days", "10h", "7d"
 					},
 				)
 				return token
